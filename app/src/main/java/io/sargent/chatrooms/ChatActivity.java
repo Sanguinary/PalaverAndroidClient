@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -35,7 +36,7 @@ public class ChatActivity extends AppCompatActivity {
     private Socket mSocket;
     {
         try{
-            mSocket = IO.socket("https://immense-chamber-1061.herokuapp.com/");
+            mSocket = IO.socket("https://palaver-server.herokuapp.com/");
             Log.d(TAG, "Connected");
         } catch (URISyntaxException e){
             Toast.makeText(this, R.string.connection_error, Toast.LENGTH_SHORT);
@@ -112,13 +113,6 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
-
-        TextMessageInfo m1 = new TextMessageInfo("test1", "Hello");
-        TextMessageInfo m2 = new TextMessageInfo("test2", "Goodbye");
-        TextMessageInfo m3 = new TextMessageInfo("test3", "Jiggyjiggy");
-        addMessageToView(m1);
-        addMessageToView(m2);
-        addMessageToView(m3);
     }
 
     @Override
@@ -170,7 +164,7 @@ public class ChatActivity extends AppCompatActivity {
 
         Log.d(TAG, formatString);
         mMessageText.setText("");
-        mSocket.emit("messageAll", formatString);
+        //mSocket.emit("messageAll", formatString);
     }
 
     private Emitter.Listener onMessageRecieved = new Emitter.Listener() {
