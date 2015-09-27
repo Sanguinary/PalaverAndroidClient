@@ -1,5 +1,7 @@
 package io.sargent.chatrooms;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.Socket;
 import com.github.nkzawa.socketio.client.IO;
 import com.google.gson.Gson;
@@ -56,6 +59,11 @@ public class ChatActivity extends AppCompatActivity {
     private ImageButton mSendMessageButton;
     private EditText mMessageText;
 
+    private String userName = "default string";
+    private String userColour = "#FFFFFF";
+
+    private Context mCtx = this;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +75,7 @@ public class ChatActivity extends AppCompatActivity {
         mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
         mSocket.on(Socket.EVENT_RECONNECT_ATTEMPT, onReconnectAttempt);
+        mSocket.on("receiveUserMetadata", onConnectMetadata);
         mSocket.on("message", onMessageRecieved);;
         mSocket.connect();
 
@@ -138,15 +147,33 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void finish() {
 
-        //mSocket.disconnect();
-        //mSocket.off(Socket.EVENT_ERROR, onError);
-        //mSocket.off(Socket.EVENT_CONNECT_ERROR, onConnectError);
-        //mSocket.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
-        //mSocket.off(Socket.EVENT_RECONNECT_ATTEMPT, onReconnectAttempt);
-        //mSocket.off("message", onMessageRecieved);
+        Log.d(TAG, "finish()");
+        mSocket.emit("disconnect", "{}");
+        mSocket.disconnect();
+        mSocket.off(Socket.EVENT_ERROR, onError);
+        mSocket.off(Socket.EVENT_CONNECT_ERROR, onConnectError);
+        mSocket.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
+        mSocket.off(Socket.EVENT_RECONNECT_ATTEMPT, onReconnectAttempt);
+        mSocket.off("message", onMessageRecieved);
+
+        super.finish();
+    }
+
+    @Override
+    public void onDestroy() {
+
+        Log.d(TAG, "onDestroy()");
+        mSocket.emit("disconnect", "{}");
+        mSocket.disconnect();
+        mSocket.off(Socket.EVENT_ERROR, onError);
+        mSocket.off(Socket.EVENT_CONNECT_ERROR, onConnectError);
+        mSocket.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
+        mSocket.off(Socket.EVENT_RECONNECT_ATTEMPT, onReconnectAttempt);
+        mSocket.off("message", onMessageRecieved);
+
+        super.onDestroy();
     }
 
     private void addMessageToView(TextMessageInfo m){
@@ -155,17 +182,47 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void attemptSendMessage(String msg){
-        // format of message { "username":"xxxx", "message":"xxxx" }
+
+        JSONObject jsonObj = new JSONObject();
+        try{
+            jsonObj.put("username", userName);
+            jsonObj.put("message", msg);
+        } catch(JSONException e){
+            Log.d(TAG, e.getMessage());
+        }
+
+        mMessageText.setText("");
 
         if(!mSocket.connected()){
-            Log.d(TAG, "NOT CONNECTED");
+            Toast.makeText(this, "Error: Not connected", Toast.LENGTH_SHORT).show();
+            //Log.d(TAG, "NOT CONNECTED");
+            return;
         }
-        String formatString = "{ \"username\":\"test\", \"message\":\"" + msg + "\" }";
 
-        Log.d(TAG, formatString);
-        mMessageText.setText("");
-        //mSocket.emit("messageAll", formatString);
+        TextMessageInfo m = new TextMessageInfo(userName, msg);
+        addMessageToView(m);
+
+        mSocket.emit("messageAll", jsonObj);
     }
+
+    private Emitter.Listener onConnectMetadata = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+
+                    try {
+                        userName = data.getString("username");
+                        userColour = data.getString("usercolor");
+                    } catch (JSONException e) {
+                        return;
+                    }
+                }
+            });
+        }
+    };
 
     private Emitter.Listener onMessageRecieved = new Emitter.Listener() {
         @Override
@@ -197,7 +254,10 @@ public class ChatActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "Disconnected");
+                    //Log.d(TAG, "Disconnected");
+                    Toast.makeText( mCtx,
+                                    R.string.disconnection_toast,
+                                    Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -221,8 +281,7 @@ public class ChatActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(),
-                            R.string.connection_error, Toast.LENGTH_LONG).show();
+
                 }
             });
         }
@@ -234,7 +293,10 @@ public class ChatActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "Reconnect attempt");
+                    //Log.d(TAG, "Reconnect attempt");
+                    Toast.makeText( getApplicationContext(),
+                                    R.string.reconnection_toast,
+                                    Toast.LENGTH_SHORT).show();
                 }
             });
         }
