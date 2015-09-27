@@ -50,6 +50,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private RecyclerView mMessageList;
     private LinearLayoutManager mMessagesLayoutManager;
+    private TextMessageAdapter mTextAdapter;
 
     private ImageButton mSendMessageButton;
     private EditText mMessageText;
@@ -79,8 +80,8 @@ public class ChatActivity extends AppCompatActivity {
         mMessagesLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mMessageList.setLayoutManager(mMessagesLayoutManager);
 
-        TextMessageAdapter textAdapter = new TextMessageAdapter(createList(5));
-        mMessageList.setAdapter(textAdapter);
+        mTextAdapter = new TextMessageAdapter();
+        mMessageList.setAdapter(mTextAdapter);
 
         mDrawer = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawer, mActionbar, R.string.open_drawer, R.string.close_drawer) {
@@ -99,30 +100,25 @@ public class ChatActivity extends AppCompatActivity {
 
         mSendMessageButton = (ImageButton)findViewById(R.id.send_message_text);
         mSendMessageButton.setColorFilter(Color.YELLOW);
-        mSendMessageButton.setOnClickListener(new View.OnClickListener(){
+        mSendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 String m = mMessageText.getText().toString();
 
-                if(TextUtils.isEmpty(m)){
+                if (TextUtils.isEmpty(m)) {
                     return;
                 } else {
                     attemptSendMessage(m);
                 }
             }
         });
-    }
 
-    private List<TextMessageInfo> createList(int size){
-        List<TextMessageInfo> result = new ArrayList<TextMessageInfo>();
-
-        for(int i = 1; i <= size; i++){
-            TextMessageInfo m = new TextMessageInfo("User" + i, "Testestetstestetst");
-
-            result.add(m);
-        }
-
-        return result;
+        TextMessageInfo m1 = new TextMessageInfo("test1", "Hello");
+        TextMessageInfo m2 = new TextMessageInfo("test2", "Goodbye");
+        TextMessageInfo m3 = new TextMessageInfo("test3", "Jiggyjiggy");
+        addMessageToView(m1);
+        addMessageToView(m2);
+        addMessageToView(m3);
     }
 
     @Override
@@ -159,6 +155,11 @@ public class ChatActivity extends AppCompatActivity {
         //mSocket.off("message", onMessageRecieved);
     }
 
+    private void addMessageToView(TextMessageInfo m){
+        mTextAdapter.addMessage(m);
+        mTextAdapter.notifyDataSetChanged();
+    }
+
     private void attemptSendMessage(String msg){
         // format of message { "username":"xxxx", "message":"xxxx" }
 
@@ -189,8 +190,8 @@ public class ChatActivity extends AppCompatActivity {
                     }
 
                     // add the message to view
-                    //addMessage(username, message);
-                    Log.d(TAG, username + " " + message);
+                    TextMessageInfo m = new TextMessageInfo(username, message);
+                    addMessageToView(m);
                 }
             });
         }

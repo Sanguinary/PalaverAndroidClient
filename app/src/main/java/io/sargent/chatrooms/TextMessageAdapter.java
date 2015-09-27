@@ -6,13 +6,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.TextMessageViewHolder>{
     private List<TextMessageInfo> messages;
 
-    public TextMessageAdapter(List<TextMessageInfo> nMessages){
-        messages = nMessages;
+    public TextMessageAdapter(){
+        messages = new ArrayList<TextMessageInfo>();
+    }
+
+    public void addMessage(TextMessageInfo m){
+        messages.add(m);
     }
 
     @Override
