@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -179,6 +180,7 @@ public class ChatActivity extends AppCompatActivity {
     private void addMessageToView(TextMessageInfo m){
         mTextAdapter.addMessage(m);
         mTextAdapter.notifyDataSetChanged();
+        mMessageList.scrollToPosition(mTextAdapter.getItemCount() - 1);
     }
 
     private void attemptSendMessage(String msg){

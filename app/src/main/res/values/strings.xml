@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Chatrooms</string>
+    <string name="app_name">Palaver</string>
 
     <string name="open_drawer">Open room selection</string>
     <string name="close_drawer">Close room selection</string>
