@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +32,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
@@ -64,6 +68,8 @@ public class ChatActivity extends AppCompatActivity {
     private String userColour = "#FFFFFF";
 
     private Context mCtx = this;
+
+    private Calendar calendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,7 +207,7 @@ public class ChatActivity extends AppCompatActivity {
             return;
         }
 
-        TextMessageInfo m = new TextMessageInfo(userName, msg);
+        TextMessageInfo m = new TextMessageInfo(userName, msg, true);
         addMessageToView(m);
 
         mSocket.emit("messageAll", jsonObj);
@@ -238,12 +244,14 @@ public class ChatActivity extends AppCompatActivity {
                     try {
                         username = data.getString("username");
                         message = data.getString("message");
+                        username += " | " + data.getString("date");
+                        username += " | " + data.getString("time");
                     } catch (JSONException e) {
                         return;
                     }
 
                     // add the message to view
-                    TextMessageInfo m = new TextMessageInfo(username, message);
+                    TextMessageInfo m = new TextMessageInfo(username, message, false);
                     addMessageToView(m);
                 }
             });

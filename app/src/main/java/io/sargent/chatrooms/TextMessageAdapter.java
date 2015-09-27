@@ -30,8 +30,20 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
     public void onBindViewHolder(TextMessageViewHolder textViewHolder, int i){
         TextMessageInfo t = messages.get(i);
 
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)textViewHolder.vTextMessage.getLayoutParams();
+
         textViewHolder.vMessage.setText(t.getMessage());
         textViewHolder.vUser.setText(t.getUser());
+
+        if(t.isSender()){
+            //params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+
+            textViewHolder.vTextMessage.setLayoutParams(params);
+        } else {
+            //params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+
+            textViewHolder.vTextMessage.setLayoutParams(params);
+        }
     }
 
     @Override
@@ -46,11 +58,14 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
     public static class TextMessageViewHolder extends RecyclerView.ViewHolder{
         protected TextView vUser;
         protected TextView vMessage;
+        protected RelativeLayout vTextMessage;
+        protected boolean vSender;
 
         public TextMessageViewHolder(View v){
             super(v);
             vUser = (TextView)v.findViewById(R.id.user);
             vMessage = (TextView)v.findViewById(R.id.message);
+            vTextMessage = (RelativeLayout)v.findViewById(R.id.text_layout_view);
         }
     }
 }
