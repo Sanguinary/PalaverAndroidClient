@@ -11,32 +11,25 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.Socket;
 import com.github.nkzawa.socketio.client.IO;
-import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
@@ -184,6 +177,13 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void addMessageToView(TextMessageInfo m){
+        // Create timestamp
+        calendar = Calendar.getInstance();
+        SimpleDateFormat date = new SimpleDateFormat("dd-MMM-yyyy | hh:mm a");
+        String formatted = date.format(calendar.getTime());
+
+        m.user += " | " + formatted;
+
         mTextAdapter.addMessage(m);
         mTextAdapter.notifyDataSetChanged();
         mMessageList.scrollToPosition(mTextAdapter.getItemCount() - 1);
@@ -210,6 +210,7 @@ public class ChatActivity extends AppCompatActivity {
         TextMessageInfo m = new TextMessageInfo(userName, msg, true);
         addMessageToView(m);
 
+        hide_keyboard(this);
         mSocket.emit("messageAll", jsonObj);
     }
 
@@ -244,8 +245,8 @@ public class ChatActivity extends AppCompatActivity {
                     try {
                         username = data.getString("username");
                         message = data.getString("message");
-                        username += " | " + data.getString("date");
-                        username += " | " + data.getString("time");
+                        //username += " | " + data.getString("date");
+                        //username += " | " + data.getString("time");
                     } catch (JSONException e) {
                         return;
                     }
@@ -311,4 +312,15 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
     };
+
+    public static void hide_keyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if(view == null) {
+            view = new View(activity);
+        }
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 }
