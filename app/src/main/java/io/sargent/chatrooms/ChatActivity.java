@@ -1,8 +1,11 @@
 package io.sargent.chatrooms;
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +21,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -85,12 +89,11 @@ public class ChatActivity extends AppCompatActivity {
         mMessageText = (EditText)findViewById(R.id.message_text);
 
         mMessageList = (RecyclerView)findViewById(R.id.message_view);
-        mMessageList.setHasFixedSize(true);
         mMessagesLayoutManager = new LinearLayoutManager(this);
         mMessagesLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mMessageList.setLayoutManager(mMessagesLayoutManager);
 
-        mTextAdapter = new TextMessageAdapter();
+        mTextAdapter = new TextMessageAdapter(getApplicationContext());
         mMessageList.setAdapter(mTextAdapter);
 
         mDrawer = (DrawerLayout)findViewById(R.id.drawer_layout);
@@ -203,7 +206,6 @@ public class ChatActivity extends AppCompatActivity {
 
         if(!mSocket.connected()){
             Toast.makeText(this, "Error: Not connected", Toast.LENGTH_SHORT).show();
-            //Log.d(TAG, "NOT CONNECTED");
             return;
         }
 
@@ -245,8 +247,6 @@ public class ChatActivity extends AppCompatActivity {
                     try {
                         username = data.getString("username");
                         message = data.getString("message");
-                        //username += " | " + data.getString("date");
-                        //username += " | " + data.getString("time");
                     } catch (JSONException e) {
                         return;
                     }
@@ -265,7 +265,6 @@ public class ChatActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    //Log.d(TAG, "Disconnected");
                     Toast.makeText( mCtx,
                                     R.string.disconnection_toast,
                                     Toast.LENGTH_SHORT).show();

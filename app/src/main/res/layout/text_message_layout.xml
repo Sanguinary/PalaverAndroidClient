@@ -13,9 +13,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="4"
-        android:elevation="4dp"
-        android:padding="3dp"
-        android:background="@color/ColorPrimaryLight">
+        android:elevation="2dp"
+        android:padding="3dp">
 
         <TextView android:id="@+id/message"
             android:layout_width="240dp"
@@ -28,12 +27,18 @@
 
     </RelativeLayout>
 
-    <TextView android:id="@+id/user"
+    <RelativeLayout
+        android:id="@+id/user_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/text_layout_view"
-        android:textColor="@color/ColorHintTextDark"
-        android:layout_alignLeft="@id/text_layout_view"
-        android:textSize="8dp"
-        android:text="teteedfsgsdfgdfsg"/>
+        android:layout_below="@+id/text_layout_view">
+
+        <TextView android:id="@+id/user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/ColorHintTextDark"
+            android:textSize="8dp"
+            android:text="teteedfsgsdfgdfsg"/>
+    </RelativeLayout>
+
 </RelativeLayout>

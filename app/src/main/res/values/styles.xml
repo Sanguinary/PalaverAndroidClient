@@ -8,4 +8,9 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style parent="android:Widget.EditText" name="EditTextAppTheme">
+        <item name="android:background">@drawable/apptheme_edit_text_holo_dark</item>
+        <item name="android:textColor">#FF000000</item>
+    </style>
+
 </resources>

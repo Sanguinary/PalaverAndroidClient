@@ -46,7 +46,9 @@
                 android:id="@+id/message_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="7" />
+                android:layout_weight="7"
+                android:textCursorDrawable="@null"
+                style="@style/EditTextAppTheme"/>
 
             <ImageButton
                 android:id="@+id/send_message_text"
