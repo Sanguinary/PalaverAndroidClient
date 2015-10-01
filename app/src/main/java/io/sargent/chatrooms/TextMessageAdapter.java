@@ -60,6 +60,9 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
             });
             textViewHolder.vTextMessage.setBackground(shape);
 
+            TextView tv = (TextView)textViewHolder.vTextMessage.findViewById(R.id.message);
+            tv.setTextColor(context.getResources().getColor(R.color.ColorPrimaryTextDark));
+
             subParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
             subParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
 
@@ -67,7 +70,9 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
             params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
 
-            GradientDrawable shape = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[] {R.color.ColorPrimaryLight, R.color.ColorPrimaryLight});
+            GradientDrawable shape = new GradientDrawable(
+                    GradientDrawable.Orientation.BOTTOM_TOP, new int[] {    context.getResources().getColor(R.color.ColorPrimaryLight),
+                                                                            context.getResources().getColor(R.color.ColorPrimaryLight)});
             float den = context.getResources().getDisplayMetrics().density;
             shape.setCornerRadii(new float[]{
                     den * 0f, den * 0f, // top-left
@@ -76,6 +81,9 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
                     den * 8f, den * 8f  // bottom-left
             });
             textViewHolder.vTextMessage.setBackground(shape);
+
+            TextView tv = (TextView)textViewHolder.vTextMessage.findViewById(R.id.message);
+            tv.setTextColor(context.getResources().getColor(R.color.ColorPrimaryTextLight));
 
             subParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
             subParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
