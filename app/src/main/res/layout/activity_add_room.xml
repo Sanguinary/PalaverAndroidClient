@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/ColorPrimaryLight"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textColor="@color/ColorPrimaryTextLight"
+            android:padding="10dp"
+            android:text="Enter a room name:"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="#FFFFFFFF"
+            android:elevation="6dp">
+
+            <EditText
+                android:id="@+id/room_name_entry"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="8"
+                android:textCursorDrawable="@null"
+                style="@style/EditTextAppTheme"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/password_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/ColorPrimaryTextLight"
+            android:gravity="center_horizontal"
+            android:padding="10dp"
+            android:text="Enter password:"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="#FFFFFFFF"
+            android:elevation="6dp">
+
+            <EditText
+                android:id="@+id/password_entry"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:textCursorDrawable="@null"
+                style="@style/EditTextAppTheme"/>
+
+            <ImageButton
+                android:id="@+id/submit_new_room"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="Send"
+                android:layout_weight="1"
+                android:backgroundTint="@color/ColorAccent"
+                android:src="@drawable/ic_send_message"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
+</RelativeLayout>

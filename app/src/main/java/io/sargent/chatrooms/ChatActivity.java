@@ -3,6 +3,7 @@ package io.sargent.chatrooms;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,11 +18,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -37,6 +40,7 @@ import java.util.Calendar;
 
 public class ChatActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
+    private static final int ADD_ROOM_REQUEST_CODE = 0;
 
     private Socket mSocket;
     {
@@ -60,6 +64,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private ImageButton mSendMessageButton;
     private EditText mMessageText;
+
+    private TextView mAddRoom;
 
     private String userName = "default string";
     private String userColour = "#FFFFFF";
@@ -125,6 +131,29 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mAddRoom = (TextView)findViewById(R.id.add_room_button);
+        mAddRoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(mCtx, AddRoomActivity.class);
+                startActivityForResult(i, ADD_ROOM_REQUEST_CODE);
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == ADD_ROOM_REQUEST_CODE){
+            switch(resultCode){
+                case RESULT_OK:
+                    //Log.d(TAG, data.getStringExtra("room_name"));
+                    //Log.d(TAG, data.getStringExtra("password"));
+                    break;
+                default: break;
+            }
+        }
     }
 
     @Override

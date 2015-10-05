@@ -65,6 +65,7 @@
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:scrollbars="vertical"
         android:padding="4dp"
         android:layout_gravity="start"
         android:background="@color/ColorPrimaryDrawer">
@@ -85,11 +86,18 @@
             android:id="@+id/drawer_list_view"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical" />
 
-            android:scrollbars="vertical">
-
-        </ListView>
+        <TextView
+            android:id="@+id/add_room_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:textColor="@color/ColorSecondaryTextLight"
+            android:padding="8dp"
+            android:textSize="32dp"
+            android:gravity="center_horizontal"/>
     </LinearLayout>
 
 
