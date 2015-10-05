@@ -30,6 +30,7 @@
 
             <EditText
                 android:id="@+id/room_name_entry"
+                android:imeOptions="actionDone"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="8"
@@ -56,6 +57,7 @@
                 android:id="@+id/password_entry"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:imeOptions="actionDone"
                 android:layout_weight="7"
                 android:textCursorDrawable="@null"
                 style="@style/EditTextAppTheme"/>

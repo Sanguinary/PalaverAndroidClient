@@ -27,7 +27,9 @@
         </activity>
         <activity
             android:name=".AddRoomActivity"
-            android:label="Add Room">
+            android:label="Add Room"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait">
 
         </activity>
     </application>

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,13 +17,16 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +40,7 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class ChatActivity extends AppCompatActivity {
@@ -62,6 +67,10 @@ public class ChatActivity extends AppCompatActivity {
     private LinearLayoutManager mMessagesLayoutManager;
     private TextMessageAdapter mTextAdapter;
 
+    private RoomAdapter mRoomAdapter;
+    private ArrayList<RoomInfo> mRoomData;
+    private ListView mRooms;
+
     private ImageButton mSendMessageButton;
     private EditText mMessageText;
 
@@ -73,6 +82,9 @@ public class ChatActivity extends AppCompatActivity {
     private Context mCtx = this;
 
     private Calendar calendar;
+
+    private String mCurrentRoom;
+    private int mCurrentRoomIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +144,37 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        mCurrentRoom = "PublicRoom1";
+        mRoomData = new ArrayList<RoomInfo>();
+        mRoomAdapter= new RoomAdapter(this, R.id.rowText, mRoomData);
+        mRooms = (ListView)findViewById(R.id.drawer_list_view);
+        mRooms.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView t = (TextView)view.findViewById(R.id.rowText);
+
+                // Clear messages and set current room
+                mCurrentRoom = t.getText().toString();
+                mCurrentRoomIndex = position;
+                mTextAdapter.clearMessages();
+
+                // Connect to room
+                attemptJoinRoom(t.getText().toString());
+
+                mDrawer.closeDrawer(GravityCompat.START);
+            }
+        });
+        mRooms.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView t = (TextView)view.findViewById(R.id.rowText);
+                attemptLeaveRoom(t.getText().toString(), position);
+
+                return true;
+            }
+        });
+        mRooms.setAdapter(mRoomAdapter);
+
         mAddRoom = (TextView)findViewById(R.id.add_room_button);
         mAddRoom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,6 +193,9 @@ public class ChatActivity extends AppCompatActivity {
                 case RESULT_OK:
                     //Log.d(TAG, data.getStringExtra("room_name"));
                     //Log.d(TAG, data.getStringExtra("password"));
+                    RoomInfo r = new RoomInfo(data.getStringExtra("room_name"), data.getStringExtra("password"));
+                    mRoomData.add(r);
+                    mRoomAdapter.notifyDataSetChanged();
                     break;
                 default: break;
             }
@@ -221,11 +267,38 @@ public class ChatActivity extends AppCompatActivity {
         mMessageList.scrollToPosition(mTextAdapter.getItemCount() - 1);
     }
 
-    private void attemptSendMessage(String msg){
+    private void attemptJoinRoom(String roomName){
 
         JSONObject jsonObj = new JSONObject();
         try{
             jsonObj.put("username", userName);
+            jsonObj.put("roomName", roomName);
+        } catch(JSONException e){
+            Log.d(TAG, e.getMessage());
+        }
+
+        mSocket.emit("roomTryJoinCreate", jsonObj);
+    }
+
+    private void attemptLeaveRoom(String roomName, int pos){
+        JSONObject jsonObj = new JSONObject();
+        try{
+            jsonObj.put("roomName", roomName);
+        } catch(JSONException e){
+            Log.d(TAG, e.getMessage());
+        }
+
+        mSocket.emit("leaveRoom", jsonObj);
+
+        mRoomData.remove(pos);
+        mRoomAdapter.notifyDataSetChanged();
+    }
+
+    private void attemptSendMessage(String msg){
+
+        JSONObject jsonObj = new JSONObject();
+        try{
+            jsonObj.put("roomName", mCurrentRoom);
             jsonObj.put("message", msg);
         } catch(JSONException e){
             Log.d(TAG, e.getMessage());
@@ -242,7 +315,7 @@ public class ChatActivity extends AppCompatActivity {
         addMessageToView(m);
 
         hide_keyboard(this);
-        mSocket.emit("messageAll", jsonObj);
+        mSocket.emit("messageRoom", jsonObj);
     }
 
     private Emitter.Listener onConnectMetadata = new Emitter.Listener() {
@@ -273,16 +346,23 @@ public class ChatActivity extends AppCompatActivity {
                     JSONObject data = (JSONObject) args[0];
                     String username;
                     String message;
+                    String room;
                     try {
                         username = data.getString("username");
                         message = data.getString("message");
+                        room = data.getString("roomName");
                     } catch (JSONException e) {
+                        Log.d(TAG, e.getMessage());
                         return;
                     }
 
                     // add the message to view
-                    TextMessageInfo m = new TextMessageInfo(username, message, false);
-                    addMessageToView(m);
+                    Log.d(TAG, room);
+                    Log.d(TAG, mCurrentRoom);
+                    if (room.equals(mCurrentRoom) || room.equals("SERVER")) {
+                        TextMessageInfo m = new TextMessageInfo(username, message, false);
+                        addMessageToView(m);
+                    }
                 }
             });
         }

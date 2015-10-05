@@ -31,6 +31,10 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
         messages.add(m);
     }
 
+    public void clearMessages(){
+        messages.clear();
+    }
+
     @Override
     public int getItemCount(){
         return messages.size();
