@@ -10,19 +10,17 @@
 
     <RelativeLayout
         android:id="@+id/text_layout_view"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/text_message_width"
         android:layout_height="wrap_content"
-        android:layout_weight="4"
         android:elevation="2dp"
         android:padding="3dp">
 
         <TextView android:id="@+id/message"
-            android:layout_width="240dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/ColorPrimaryTextDark"
             android:paddingLeft="2dp"
             android:paddingRight="2dp"
-            android:text="tetststst"
             android:textSize="14dp"/>
 
     </RelativeLayout>
@@ -37,8 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/ColorHintTextDark"
-            android:textSize="8dp"
-            android:text="teteedfsgsdfgdfsg"/>
+            android:textSize="8dp"/>
     </RelativeLayout>
 
 </RelativeLayout>

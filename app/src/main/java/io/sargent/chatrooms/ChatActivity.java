@@ -135,7 +135,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String m = mMessageText.getText().toString();
 
-                if (TextUtils.isEmpty(m)) {
+                if (TextUtils.isEmpty(m) || mCurrentRoom == null) {
                     return;
                 } else {
                     attemptSendMessage(m);
@@ -163,6 +163,7 @@ public class ChatActivity extends AppCompatActivity {
                 // Connect to room
                 attemptJoinRoom(t.getText().toString());
                 loadMessages(mCurrentRoom);
+                mActionbar.setTitle(mCurrentRoom);
 
                 mDrawer.closeDrawer(GravityCompat.START);
             }
@@ -186,6 +187,9 @@ public class ChatActivity extends AppCompatActivity {
                 startActivityForResult(i, ADD_ROOM_REQUEST_CODE);
             }
         });
+
+        // Load in data from previous sessions
+        loadRooms();
     }
 
     @Override
@@ -194,8 +198,6 @@ public class ChatActivity extends AppCompatActivity {
         if(requestCode == ADD_ROOM_REQUEST_CODE){
             switch(resultCode){
                 case RESULT_OK:
-                    //Log.d(TAG, data.getStringExtra("room_name"));
-                    //Log.d(TAG, data.getStringExtra("password"));
                     RoomInfo r = new RoomInfo(data.getStringExtra("room_name"), data.getStringExtra("password"));
                     mRoomData.add(r);
                     mRoomAdapter.notifyDataSetChanged();
@@ -209,6 +211,14 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_chat, menu);
+
+        // set title to the current room
+        if(mCurrentRoom != null){
+            mActionbar.setTitle(mCurrentRoom);
+        } else {
+            mActionbar.setTitle("No current room");
+        }
+
         return true;
     }
 
@@ -230,8 +240,10 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public void onPause(){
         saveMessages();
+        saveRooms();
         super.onPause();
     }
+
     @Override
     public void finish() {
 
@@ -282,7 +294,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void loadMessages(String roomName){
-        JSONArray json = mDataStore.getJSONArrayFromStorage(roomName);
+        JSONArray json = mDataStore.getJSONArrayFromStorage(roomName, true);
         for(int i = 0; i < json.length(); i ++){
             String userName = "Default String";
             String message = "Default String";
@@ -316,7 +328,48 @@ public class ChatActivity extends AppCompatActivity {
                 array.put(json);
             }
 
-            mDataStore.setJSONArrayInStorage(mCurrentRoom, array);
+            mDataStore.setJSONArrayInStorage(mCurrentRoom, array, true);
+        }
+    }
+
+    private void loadRooms(){
+        JSONArray json = mDataStore.getJSONArrayFromStorage("room_list", false);
+
+        if(mCurrentRoom == null){
+            try{
+                for(int i = 0; i < json.length(); i++){
+                    JSONObject jsonObj = json.getJSONObject(i);
+                    RoomInfo r = new RoomInfo(jsonObj.getString("roomName"), "Default String"/*jsonObj.getString("password")*/);
+                    mRoomData.add(r);
+                    mRoomAdapter.notifyDataSetChanged();
+                }
+                JSONObject j = mDataStore.getJSONObjectFromStorage("saved_room");
+                mCurrentRoom = j.getString("currentRoom");
+            }catch(Exception e){
+                Log.d(TAG, e.getMessage());
+            }
+
+            loadMessages(mCurrentRoom);
+        }
+    }
+
+    private void saveRooms(){
+        if(mCurrentRoom != null){
+            JSONObject room = new JSONObject();
+            JSONArray roomList = new JSONArray();
+            try{
+                for(int i = 0; i < mRoomAdapter.getCount(); i++){
+                    JSONObject j = new JSONObject();
+                    j.put("roomName", mRoomAdapter.getItem(i).roomName);
+                    roomList.put(j);
+                }
+                room.put("currentRoom", mCurrentRoom);
+            }catch(Exception e){
+                Log.d(TAG, e.getMessage());
+            }
+
+            mDataStore.setJSONObjectInStorage("saved_room", room);
+            mDataStore.setJSONArrayInStorage("room_list", roomList, false);
         }
     }
 
@@ -423,7 +476,7 @@ public class ChatActivity extends AppCompatActivity {
                             Log.d(TAG, e.getMessage());
                         }
 
-                        mDataStore.appendJSONObjectInStorage(room, obj);
+                        mDataStore.appendJSONObjectInStorage(room, obj, true);
                     }
                 }
             });
