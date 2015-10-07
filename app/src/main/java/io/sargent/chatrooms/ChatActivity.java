@@ -29,6 +29,7 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,6 +66,8 @@ public class ChatActivity extends AppCompatActivity {
     private ArrayList<RoomInfo> mRoomData;
     private ListView mRooms;
 
+    private DataStore mDataStore;
+
     private ImageButton mSendMessageButton;
     private EditText mMessageText;
 
@@ -77,6 +80,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private Calendar calendar;
 
+
     private String mCurrentRoom;
     private int mCurrentRoomIndex;
 
@@ -84,6 +88,8 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        mDataStore = DataStore.get(this);
 
         // Server socket
         mSocket.on(Socket.EVENT_ERROR, onError);
@@ -138,7 +144,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        mCurrentRoom = "PublicRoom1";
+        mCurrentRoom = null;
         mRoomData = new ArrayList<RoomInfo>();
         mRoomAdapter= new RoomAdapter(this, R.id.rowText, mRoomData);
         mRooms = (ListView)findViewById(R.id.drawer_list_view);
@@ -147,6 +153,9 @@ public class ChatActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView t = (TextView)view.findViewById(R.id.rowText);
 
+                //Save messages for the current room
+                saveMessages();
+
                 // Clear messages and set current room
                 mCurrentRoom = t.getText().toString();
                 mCurrentRoomIndex = position;
@@ -154,6 +163,7 @@ public class ChatActivity extends AppCompatActivity {
 
                 // Connect to room
                 attemptJoinRoom(t.getText().toString());
+                loadMessages(mCurrentRoom);
 
                 mDrawer.closeDrawer(GravityCompat.START);
             }
@@ -219,6 +229,11 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onPause(){
+        saveMessages();
+        super.onPause();
+    }
+    @Override
     public void finish() {
 
         Log.d(TAG, "finish()");
@@ -259,6 +274,51 @@ public class ChatActivity extends AppCompatActivity {
         mTextAdapter.addMessage(m);
         mTextAdapter.notifyDataSetChanged();
         mMessageList.scrollToPosition(mTextAdapter.getItemCount() - 1);
+    }
+
+    private void addMessageToViewNoTimestamp(TextMessageInfo m){
+        mTextAdapter.addMessage(m);
+        mTextAdapter.notifyDataSetChanged();
+        mMessageList.scrollToPosition(mTextAdapter.getItemCount() - 1);
+    }
+
+    private void loadMessages(String roomName){
+        JSONArray json = mDataStore.getJSONArrayFromStorage(roomName);
+        for(int i = 0; i < json.length(); i ++){
+            String userName = "Default String";
+            String message = "Default String";
+            Boolean isSender = false;
+            try {
+                userName = json.getJSONObject(i).getString("username");
+                message = json.getJSONObject(i).getString("message");
+                isSender = json.getJSONObject(i).getBoolean("isSender");
+            } catch(Exception e){
+                Log.d("ChatActivity", e.getMessage());
+            }
+
+            TextMessageInfo m = new TextMessageInfo(userName, message, isSender);
+            addMessageToViewNoTimestamp(m);
+        }
+    }
+
+    private void saveMessages(){
+        if(mCurrentRoom != null){
+            JSONArray array = new JSONArray();
+            for(int i = 0; i < mTextAdapter.getItemCount(); i++){
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("username", mTextAdapter.getMessageAt(i).getUser());
+                    json.put("message", mTextAdapter.getMessageAt(i).getMessage());
+                    json.put("isSender", mTextAdapter.getMessageAt(i).isSender());
+                }catch(Exception e){
+                    Log.d(TAG, e.getMessage());
+                }
+
+                array.put(json);
+            }
+
+            mDataStore.setJSONArrayInStorage(mCurrentRoom, array);
+        }
     }
 
     private void attemptJoinRoom(String roomName){
@@ -351,11 +411,20 @@ public class ChatActivity extends AppCompatActivity {
                     }
 
                     // add the message to view
-                    //Log.d(TAG, room);
-                    //Log.d(TAG, mCurrentRoom);
                     if (room.equals(mCurrentRoom) || room.equals("SERVER")) {
                         TextMessageInfo m = new TextMessageInfo(username, message, false);
                         addMessageToView(m);
+                    } else {
+                        JSONObject obj = new JSONObject();
+                        try{
+                            obj.put("username", username);
+                            obj.put("message", message);
+                            obj.put("isSender", false);
+                        }catch(Exception e){
+                            Log.d(TAG, e.getMessage());
+                        }
+
+                        mDataStore.appendJSONObjectInStorage(room, obj);
                     }
                 }
             });

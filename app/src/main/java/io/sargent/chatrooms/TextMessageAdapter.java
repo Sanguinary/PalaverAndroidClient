@@ -27,6 +27,10 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
         messages = new ArrayList<TextMessageInfo>();
     }
 
+    public TextMessageInfo getMessageAt(int position){
+        return messages.get(position);
+    }
+
     public void addMessage(TextMessageInfo m){
         messages.add(m);
     }
