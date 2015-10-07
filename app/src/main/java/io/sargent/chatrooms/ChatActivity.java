@@ -1,39 +1,33 @@
 package io.sargent.chatrooms;
 
 import android.app.Activity;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.Socket;
 import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -357,8 +351,8 @@ public class ChatActivity extends AppCompatActivity {
                     }
 
                     // add the message to view
-                    Log.d(TAG, room);
-                    Log.d(TAG, mCurrentRoom);
+                    //Log.d(TAG, room);
+                    //Log.d(TAG, mCurrentRoom);
                     if (room.equals(mCurrentRoom) || room.equals("SERVER")) {
                         TextMessageInfo m = new TextMessageInfo(username, message, false);
                         addMessageToView(m);

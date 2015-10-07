@@ -64,11 +64,13 @@
 
             <ImageButton
                 android:id="@+id/submit_new_room"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:text="Send"
-                android:layout_weight="1"
-                android:backgroundTint="@color/ColorAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:layout_margin="4dp"
+                android:layout_gravity="center_vertical"
+                android:clickable="true"
+                android:background="@drawable/button_circle"
                 android:src="@drawable/ic_send_message"/>
         </LinearLayout>
     </LinearLayout>
