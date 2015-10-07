@@ -80,7 +80,6 @@ public class ChatActivity extends AppCompatActivity {
 
     private Calendar calendar;
 
-
     private String mCurrentRoom;
     private int mCurrentRoomIndex;
 
