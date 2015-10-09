@@ -32,6 +32,13 @@
             android:screenOrientation="portrait">
 
         </activity>
+        <activity
+            android:name=".AboutActivity"
+            android:label="AboutPage"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait">
+
+        </activity>
     </application>
 
 </manifest>

@@ -9,6 +9,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.internal.view.menu.ActionMenuItem;
+import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -41,9 +43,11 @@ import java.util.Calendar;
 public class ChatActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
     private static final int ADD_ROOM_REQUEST_CODE = 0;
+    //private static final int
 
     private Socket mSocket;
     {
+        //try to connect to the server...
         try{
             mSocket = IO.socket("https://palaver-server.herokuapp.com/");
             Log.d(TAG, "Connected");
@@ -52,11 +56,12 @@ public class ChatActivity extends AppCompatActivity {
             Log.d(TAG, "Error: Unable to connect to IP. " + e.getMessage());
         }
     }
-
+    //class level variables
     private Toolbar mActionbar;
 
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle mDrawerToggle;
+    private ActionMenuItem WrenchAboutButton;
 
     private RecyclerView mMessageList;
     private LinearLayoutManager mMessagesLayoutManager;
@@ -85,8 +90,10 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
 
         mDataStore = DataStore.get(this);
 
@@ -113,6 +120,7 @@ public class ChatActivity extends AppCompatActivity {
         mTextAdapter = new TextMessageAdapter(getApplicationContext());
         mMessageList.setAdapter(mTextAdapter);
 
+        //this handles creation of the drawer
         mDrawer = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawer, mActionbar, R.string.open_drawer, R.string.close_drawer) {
             @Override
@@ -143,6 +151,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+
         mCurrentRoom = null;
         mRoomData = new ArrayList<RoomInfo>();
         mRoomAdapter= new RoomAdapter(this, R.id.rowText, mRoomData);
@@ -150,7 +159,7 @@ public class ChatActivity extends AppCompatActivity {
         mRooms.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                TextView t = (TextView)view.findViewById(R.id.rowText);
+                TextView t = (TextView) view.findViewById(R.id.rowText);
 
                 //Save messages for the current room
                 saveMessages();
@@ -171,7 +180,7 @@ public class ChatActivity extends AppCompatActivity {
         mRooms.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                TextView t = (TextView)view.findViewById(R.id.rowText);
+                TextView t = (TextView) view.findViewById(R.id.rowText);
                 attemptLeaveRoom(t.getText().toString(), position);
 
                 return true;
@@ -231,6 +240,11 @@ public class ChatActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            //create intent out of the AboutActivity
+            Intent i = new Intent(mCtx, AboutActivity.class);
+            //start the new activity
+            startActivity(i);
+            //Log.d(TAG,"Clicked");
             return true;
         }
 
