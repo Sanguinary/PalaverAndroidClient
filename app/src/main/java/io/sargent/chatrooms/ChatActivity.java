@@ -46,16 +46,7 @@ public class ChatActivity extends AppCompatActivity {
     //private static final int
 
     private Socket mSocket;
-    {
-        //try to connect to the server...
-        try{
-            mSocket = IO.socket("https://palaver-server.herokuapp.com/");
-            Log.d(TAG, "Connected");
-        } catch (URISyntaxException e){
-            Toast.makeText(this, R.string.connection_error, Toast.LENGTH_SHORT);
-            Log.d(TAG, "Error: Unable to connect to IP. " + e.getMessage());
-        }
-    }
+
     //class level variables
     private Toolbar mActionbar;
 
@@ -96,6 +87,8 @@ public class ChatActivity extends AppCompatActivity {
 
 
         mDataStore = DataStore.get(this);
+        GlobalState state = (GlobalState)getApplicationContext();
+        mSocket = state.getSocket();
 
         // Server socket
         mSocket.on(Socket.EVENT_ERROR, onError);
@@ -105,7 +98,6 @@ public class ChatActivity extends AppCompatActivity {
         mSocket.on(Socket.EVENT_RECONNECT_ATTEMPT, onReconnectAttempt);
         mSocket.on("receiveUserMetadata", onConnectMetadata);
         mSocket.on("message", onMessageRecieved);;
-        mSocket.connect();
 
         mActionbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(mActionbar);
@@ -182,7 +174,6 @@ public class ChatActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView t = (TextView) view.findViewById(R.id.rowText);
                 attemptLeaveRoom(t.getText().toString(), position);
-
                 return true;
             }
         });

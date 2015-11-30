@@ -12,24 +12,55 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
+
 /**
  * Created by Jordan on 11/29/2015.
  */
 public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = "Login Activity";
+
 
     private EditText mUsernameInput;
     private EditText mPasswordInput;
     private Button mLoginButton;
     private Button mCreateAccountButton;
-    private TextView mErrorText;
+
+    private Socket mSocket;
+    /*{
+        //try to connect to the server...
+        try{
+            mSocket = IO.socket("https://palaver-server.herokuapp.com/");
+            Log.d(TAG, "Connected");
+        } catch (URISyntaxException e){
+            Toast.makeText(this, R.string.connection_error, Toast.LENGTH_SHORT);
+            Log.d(TAG, "Error: Unable to connect to IP. " + e.getMessage());
+        }
+    }
+    */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
+        GlobalState state = (GlobalState)getApplicationContext();
+        mSocket = state.getSocket();
+        mSocket.on("LoginSuccessful", LoginSuccessful);
+        mSocket.on("LoginError", LoginFailed);
+        mSocket.connect();
+
+
+
         mUsernameInput = (EditText)findViewById(R.id.usernameinput);
         mPasswordInput = (EditText)findViewById(R.id.passwordinput);
 
-        mErrorText = (TextView)findViewById(R.id.errorText);
 
         mLoginButton = (Button)findViewById(R.id.loginbutton);
         mCreateAccountButton = (Button)findViewById(R.id.createbutton);
@@ -50,6 +81,18 @@ public class LoginActivity extends AppCompatActivity {
                    //code here for logging in to server
                    String username = mUsernameInput.getText().toString();
                    String password = mPasswordInput.getText().toString();
+                   JSONObject jsonObj = new JSONObject();
+                   try{
+                       jsonObj.put("username", username);
+                       jsonObj.put("password", password);
+
+                   } catch(JSONException e){
+                       Log.d(TAG, e.getMessage());
+                   }
+
+                   mSocket.emit("login", jsonObj);
+
+
 
 
                }
@@ -69,4 +112,74 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
+
+    private Emitter.Listener LoginSuccessful = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String username;
+                    String color;
+
+                    JSONObject data = (JSONObject) args[0];
+                    String text = "Login Successful";
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+
+                    Intent appIntent = new Intent(getApplicationContext(), ChatActivity.class);
+                    Bundle b = new Bundle();
+                    try {
+                        appIntent.putExtra("wantsCustomColor", data.getBoolean("wantsCustomColor"));
+                        appIntent.putExtra("wantsCustomName", data.getBoolean("wantsCustomName"));
+                        if(data.getBoolean("wantsCustomColor")){
+                            color = data.getString("CustomColor");
+                            appIntent.putExtra("CustomColor", color);
+
+                        }
+                        if(data.getBoolean("wantsCustomName")){
+                            username = data.getString("CustomName");
+                            appIntent.putExtra("CustomName", username);
+
+                        }
+                        startActivity(appIntent);
+                    } catch (JSONException e) {
+                        return;
+                    }
+
+
+                }
+            });
+        }
+    };
+
+
+    private Emitter.Listener LoginFailed = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String text;
+                    try {
+                        text = data.getString("message");
+
+
+                    } catch (JSONException e) {
+                        Log.d(TAG, e.getMessage());
+                        return;
+                    }
+
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+            });
+        }
+    };
 }
