@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+        <include
+            android:id="@+id/tool_bar"
+            layout="@layout/tool_bar"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Palaver Login"
+            android:id="@+id/titletext"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.04"
+            android:textColor="#010001"
+            android:textSize="40dp"
+            android:paddingTop="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/errorText"
+            android:layout_gravity="center_horizontal"
+            android:visibility="invisible"
+            android:textColor="#ff0600"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Username"
+            android:id="@+id/usernametext"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="40dp"/>
+
+        <EditText
+            android:layout_width="313dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/usernameinput"
+            android:layout_gravity="center_horizontal"
+            android:textColor="#666666"
+            android:singleLine="true"
+            android:inputType="text"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Password"
+            android:id="@+id/passwordtext"
+            android:layout_gravity="center_horizontal"
+            android:password="false"
+            android:paddingTop="20dp"/>
+
+        <EditText
+            android:layout_width="315dp"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:ems="10"
+            android:id="@+id/passwordinput"
+            android:layout_gravity="center_horizontal"
+            android:password="true"
+            android:textColor="#FF666666"
+            android:singleLine="true"/>
+
+        <Button
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:id="@+id/loginbutton"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"/>
+
+        <Button
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:text="Create Account"
+            android:id="@+id/createbutton"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>
