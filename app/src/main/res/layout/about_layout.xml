@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,41 +24,31 @@
             android:textIsSelectable="false"
             android:textSize="40dp" />
 
-        <TextView
+        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Username"
-            android:id="@+id/textView2"
-            android:layout_gravity="center_horizontal"
-            android:textSize="25dp" />
+            android:text="Use A Custom Name"
+            android:id="@+id/wantsCustomName"
+            android:layout_gravity="center_horizontal"/>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <EditText
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:gravity="center_horizontal"
-            android:text=""
-            android:id="@+id/usernameInfo"
-            android:layout_gravity="center_horizontal"
-            android:textAlignment="gravity" />
+            android:id="@+id/CustomNameEditText"
+            android:layout_gravity="center_horizontal"/>
 
-        <TextView
+        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Color"
-            android:id="@+id/textView3"
-            android:layout_gravity="center_horizontal"
-            android:textSize="25dp" />
+            android:text="Use A Custom Color"
+            android:id="@+id/wantCustomColor"
+            android:layout_gravity="center_horizontal"/>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <EditText
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/usercolorInfo"
-            android:layout_gravity="center_horizontal" />
+            android:id="@+id/CustomColorEditText"
+            android:layout_gravity="center_horizontal"/>
 
         <Button
             android:layout_width="wrap_content"

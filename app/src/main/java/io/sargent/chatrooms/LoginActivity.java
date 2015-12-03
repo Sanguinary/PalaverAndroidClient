@@ -91,9 +91,8 @@ public class LoginActivity extends AppCompatActivity {
         mCreateAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://palaver-server.herokuapp.com/signup"));
-                Intent browserChooserIntent = Intent.createChooser(browserIntent , "Choose browser of your choice");
-                startActivity(browserChooserIntent );
+                Intent appIntent = new Intent(getApplicationContext(), AccountCreationActivity.class);
+                startActivity(appIntent);
 
             }
         });

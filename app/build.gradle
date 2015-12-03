@@ -17,6 +17,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+
+
+}
+repositories {
+    maven {
+        url "https://jitpack.io"
+    }
 }
 
 dependencies {
@@ -26,4 +34,6 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.android.support:recyclerview-v7:23.0.1'
     compile 'com.android.support:design:23.0.1'
+    compile 'com.github.christophesmet:colorpicker:e0ddf2bdab@aar'
+
 }
