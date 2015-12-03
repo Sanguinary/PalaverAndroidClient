@@ -34,17 +34,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button mCreateAccountButton;
 
     private Socket mSocket;
-    /*{
-        //try to connect to the server...
-        try{
-            mSocket = IO.socket("https://palaver-server.herokuapp.com/");
-            Log.d(TAG, "Connected");
-        } catch (URISyntaxException e){
-            Toast.makeText(this, R.string.connection_error, Toast.LENGTH_SHORT);
-            Log.d(TAG, "Error: Unable to connect to IP. " + e.getMessage());
-        }
-    }
-    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
 
                    mSocket.emit("login", jsonObj);
 
-
+                    mPasswordInput.setText("");
 
 
                }
@@ -113,6 +102,16 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+            mSocket.connect();
+
+
+    }
+
     private Emitter.Listener LoginSuccessful = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -121,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
                 public void run() {
                     String username;
                     String color;
-
+                    Log.i("LOGINACTIVITY", "LOGIN SUCCESSFUL");
                     JSONObject data = (JSONObject) args[0];
                     String text = "Login Successful";
                     Context context = getApplicationContext();

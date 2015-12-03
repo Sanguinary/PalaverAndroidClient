@@ -77,6 +77,8 @@ public class ChatActivity extends AppCompatActivity {
     private Calendar calendar;
 
     private String mCurrentRoom;
+    private boolean wantsCustomName;
+    private boolean wantsCustomColor;
     private int mCurrentRoomIndex;
 
     @Override
@@ -90,6 +92,18 @@ public class ChatActivity extends AppCompatActivity {
         GlobalState state = (GlobalState)getApplicationContext();
         mSocket = state.getSocket();
 
+        Bundle extras = getIntent().getExtras();
+        wantsCustomName = extras.getBoolean("wantsCustomName");
+        wantsCustomColor = extras.getBoolean("wantsCustomColor");
+
+
+        if(extras.getBoolean("wantsCustomName")==true){
+            userName = extras.getString("CustomName");
+        }
+        if(extras.getBoolean("wantsCustomColor")==true){
+            userColour = extras.getString("CustomColor");
+        }
+
         // Server socket
         mSocket.on(Socket.EVENT_ERROR, onError);
         mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
@@ -97,7 +111,7 @@ public class ChatActivity extends AppCompatActivity {
         mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
         mSocket.on(Socket.EVENT_RECONNECT_ATTEMPT, onReconnectAttempt);
         mSocket.on("receiveUserMetadata", onConnectMetadata);
-        mSocket.on("message", onMessageRecieved);;
+        mSocket.on("message", onMessageRecieved);
 
         mActionbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(mActionbar);
@@ -233,6 +247,10 @@ public class ChatActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             //create intent out of the AboutActivity
             Intent i = new Intent(mCtx, AboutActivity.class);
+            i.putExtra("userName", userName);
+            i.putExtra("userColor", userColour);
+            i.putExtra("wantsCustomName", wantsCustomName);
+            i.putExtra("wantsCustomColor", wantsCustomColor);
             //start the new activity
             startActivity(i);
             //Log.d(TAG,"Clicked");
@@ -254,7 +272,6 @@ public class ChatActivity extends AppCompatActivity {
 
         Log.d(TAG, "finish()");
         mSocket.emit("disconnect", "{}");
-        mSocket.disconnect();
         mSocket.off(Socket.EVENT_ERROR, onError);
         mSocket.off(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
@@ -266,10 +283,9 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
-
+        Log.i("CHAT ACTIVITY:", "DESTROY CALLED");
         Log.d(TAG, "onDestroy()");
         mSocket.emit("disconnect", "{}");
-        mSocket.disconnect();
         mSocket.off(Socket.EVENT_ERROR, onError);
         mSocket.off(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);

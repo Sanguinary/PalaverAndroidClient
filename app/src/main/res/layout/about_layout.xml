@@ -15,10 +15,55 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/about_text"
+            android:text="User Settings"
+            android:id="@+id/textView"
             android:layout_gravity="center_horizontal"
-            android:textColor="#010101"
-            android:textAlignment="center"/>
+            android:textColor="#bf000000"
+            android:textIsSelectable="false"
+            android:textSize="40dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Username"
+            android:id="@+id/textView2"
+            android:layout_gravity="center_horizontal"
+            android:textSize="25dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:gravity="center_horizontal"
+            android:text=""
+            android:id="@+id/usernameInfo"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="gravity" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Color"
+            android:id="@+id/textView3"
+            android:layout_gravity="center_horizontal"
+            android:textSize="25dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/usercolorInfo"
+            android:layout_gravity="center_horizontal" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change Settings"
+            android:id="@+id/settingsButton"
+            android:layout_gravity="center_horizontal" />
 
 
     </LinearLayout>

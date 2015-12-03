@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Palaver Login"
+            android:text="Palaver"
             android:id="@+id/titletext"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.04"
@@ -25,23 +25,7 @@
             android:textSize="40dp"
             android:paddingTop="10dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:id="@+id/errorText"
-            android:layout_gravity="center_horizontal"
-            android:visibility="invisible"
-            android:textColor="#ff0600"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Username"
-            android:id="@+id/usernametext"
-            android:layout_gravity="center_horizontal"
-            android:paddingTop="40dp"/>
 
         <EditText
             android:layout_width="313dp"
@@ -49,18 +33,10 @@
             android:id="@+id/usernameinput"
             android:layout_gravity="center_horizontal"
             android:textColor="#666666"
+            android:gravity="center_horizontal"
             android:singleLine="true"
-            android:inputType="text"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Password"
-            android:id="@+id/passwordtext"
-            android:layout_gravity="center_horizontal"
-            android:password="false"
-            android:paddingTop="20dp"/>
+            android:inputType="text"
+            android:hint="Username" />
 
         <EditText
             android:layout_width="315dp"
@@ -71,7 +47,10 @@
             android:layout_gravity="center_horizontal"
             android:password="true"
             android:textColor="#FF666666"
-            android:singleLine="true"/>
+            android:singleLine="true"
+            android:hint="Password"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="20dp" />
 
         <Button
             android:layout_width="180dp"
