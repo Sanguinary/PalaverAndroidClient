@@ -14,12 +14,25 @@ import java.net.URISyntaxException;
  */
 public class GlobalState extends Application {
     private static final String TAG = "Global State";
+    private boolean GlobalWantsCustomName;
+    private String GlobalCustomName;
+
+    private boolean GlobalWantsCustomColor;
+    private String GlobalCustomColor;
 
     private Socket mSocket;
+
+    public void start()
     {
+        GlobalCustomName = "";
+        GlobalWantsCustomName = false;
+        GlobalCustomColor = "";
+        GlobalWantsCustomColor = false;
         //try to connect to the server...
         try{
+
             mSocket = IO.socket("https://palaver-server.herokuapp.com/");
+            //mSocket = IO.socket("http://129.21.114.153:3000/");
             Log.d(TAG, "Connected");
         } catch (URISyntaxException e){
             Toast.makeText(this, R.string.connection_error, Toast.LENGTH_SHORT);
@@ -30,4 +43,19 @@ public class GlobalState extends Application {
     public Socket getSocket(){
         return mSocket;
     }
+    //gets and sets
+    //custom name
+    public String getGlobalCustomName(){return GlobalCustomName;}
+    public void setGlobalCustomName(String name){ GlobalCustomName = name;}
+    //wants name
+    public boolean getGlobalWantsCustomName(){return GlobalWantsCustomName;}
+    public void setGlobalWantsCustomName(boolean want){ GlobalWantsCustomName = want;}
+    //custom color
+    public String getGlobalCustomColor(){return GlobalCustomColor;}
+    public void setGlobalCustomColor(String color){GlobalCustomColor = color;}
+    //wants color
+    public boolean getGlobalWantsGlobalCustomColor(){return GlobalWantsCustomColor;}
+    public void setGlobalWantsCustomColor(boolean want){GlobalWantsCustomColor = want;}
+
+
 }

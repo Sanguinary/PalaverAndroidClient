@@ -24,32 +24,44 @@ import com.github.nkzawa.socketio.client.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Created by jmk1637 on 10/8/2015.
  */
 public class AboutActivity extends AppCompatActivity {
 
-    private Toolbar mActionbar;
     private EditText CustomColorEditText;
     private EditText CustomNameEditText;
     private CheckBox WantsCustomNameCheckBox;
     private CheckBox WantsCustomColorCheckBox;
+    private Toolbar mActionbar;
     private Button settingsButton;
+    private Button backButton;
     private Socket mSocket;
+    private GlobalState state;
+    private Pattern pattern;
+    private Matcher matcher;
+    private String HEX_PATTERN;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about_layout);
         Bundle extras = getIntent().getExtras();
+        HEX_PATTERN = "^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$";
+        pattern = Pattern.compile(HEX_PATTERN);
 
-        GlobalState state = (GlobalState)getApplicationContext();
+        state = (GlobalState)getApplicationContext();
         mSocket = state.getSocket();
 
         mSocket.on("changePreferencesSuccess", ChangeSuccessful);
         mSocket.on("changePreferencesError", ChangeError);
 
         settingsButton = (Button) findViewById(R.id.settingsButton);
+        backButton = (Button)findViewById(R.id.backButton);
 
         WantsCustomColorCheckBox = (CheckBox) findViewById(R.id.wantCustomColor);
         WantsCustomNameCheckBox = (CheckBox) findViewById(R.id.wantsCustomName);
@@ -58,23 +70,22 @@ public class AboutActivity extends AppCompatActivity {
         CustomNameEditText = (EditText) findViewById(R.id.CustomNameEditText);
 
         mActionbar = (Toolbar) findViewById(R.id.tool_bar);
-        mActionbar.setTitle("About");
 
-        if (extras.getBoolean("wantsCustomName")) {
+        if (state.getGlobalWantsCustomName()) {
             WantsCustomNameCheckBox.setChecked(true);
             CustomNameEditText.setVisibility(View.VISIBLE);
-            CustomNameEditText.setText(extras.getString("userName"));
+            CustomNameEditText.setText(state.getGlobalCustomName());
         } else {
             WantsCustomNameCheckBox.setChecked(false);
             CustomNameEditText.setVisibility(View.INVISIBLE);
 
         }
 
-        if (extras.getBoolean("wantsCustomColor")) {
+        if (state.getGlobalWantsGlobalCustomColor()) {
             WantsCustomColorCheckBox.setChecked(true);
             CustomColorEditText.setVisibility(View.VISIBLE);
-            CustomColorEditText.setText(extras.getString("userColor"));
-            CustomColorEditText.setTextColor(Color.parseColor("#" + extras.getString("userColor")));
+            CustomColorEditText.setText(state.getGlobalCustomColor());
+            //CustomColorEditText.setTextColor(Color.parseColor("#" + state.getGlobalCustomColor()));
         } else {
             WantsCustomColorCheckBox.setChecked(false);
             CustomColorEditText.setVisibility(View.INVISIBLE);
@@ -98,33 +109,84 @@ public class AboutActivity extends AppCompatActivity {
                     CustomNameEditText.setVisibility(View.VISIBLE);
                 } else {
                     CustomNameEditText.setVisibility(View.INVISIBLE);
-
                 }
 
             }
         });
-
-        CustomColorEditText.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent appIntent = new Intent(getApplicationContext(), ChatActivity.class);
+                startActivity(appIntent);
             }
         });
 
-        settingsButton.setOnClickListener(new View.OnClickListener()
-
-          {
+        settingsButton.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View v) {
                   //change settings emit from socket
-                  mSocket.emit("changePreferences");
+                  if(WantsCustomColorCheckBox.isChecked()){
+                      if(CustomColorEditText.getText().toString().length() == 0){
+                          Context context = getApplicationContext();
+                          int duration = Toast.LENGTH_SHORT;
+                          Toast toast = Toast.makeText(context, "Must Enter A Custom Color", duration);
+                          toast.show();
+                          return;
+
+                      }
+                  }
+                  if(WantsCustomNameCheckBox.isChecked()){
+                      if(CustomNameEditText.getText().toString().length() == 0){
+                          Context context = getApplicationContext();
+                          int duration = Toast.LENGTH_SHORT;
+                          Toast toast = Toast.makeText(context, "Must Enter A Custom Name", duration);
+                          toast.show();
+                          return;
+                      }
+                  }
+                  boolean wantsCName = WantsCustomNameCheckBox.isChecked();
+                  boolean wantsCColor = WantsCustomColorCheckBox.isChecked();
+                  String CColor = "";
+                  String CName = "";
+
+                  if(wantsCColor == true){
+                      if(validateHexCode(CustomColorEditText.getText().toString())){
+                          CColor = CustomColorEditText.getText().toString();
+
+                      }
+                      else{
+                          Context context = getApplicationContext();
+                          int duration = Toast.LENGTH_SHORT;
+                          Toast toast = Toast.makeText(context, "Must be a hex color. Ex. aabbcc", duration);
+                          toast.show();
+                          return;
+                      }
+
+                  }
+                  else{
+                      CColor = "none";
+
+                  }
+                  if(wantsCName == true){
+                      CName = CustomNameEditText.getText().toString();
+                  }
+                  else{
+                      CName = "none";
+                  }
+
+                  JSONObject jsonObj = new JSONObject();
+
+                  try {
+                      jsonObj.put("wantsCustomName", wantsCName);
+                      jsonObj.put("wantsCustomColor", wantsCColor);
+                      jsonObj.put("CustomName", CName);
+                      jsonObj.put("CustomColor", CColor);
+
+
+                  } catch (JSONException e) {
+                      return;
+                  }
+                  mSocket.emit("changePreferences", jsonObj);
 
               }
           }
@@ -140,33 +202,21 @@ public class AboutActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    String username;
-                    String color;
-                    Log.i("LOGINACTIVITY", "LOGIN SUCCESSFUL");
                     JSONObject data = (JSONObject) args[0];
-                    String text = "Login Successful";
                     Context context = getApplicationContext();
                     int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, text, duration);
+                    Toast toast = Toast.makeText(context, "Changes Successfully Made", duration);
                     toast.show();
-
                     Intent appIntent = new Intent(getApplicationContext(), ChatActivity.class);
-                    Bundle b = new Bundle();
+                    startActivity(appIntent);
                     try {
-                        appIntent.putExtra("wantsCustomColor", data.getBoolean("wantsCustomColor"));
-                        appIntent.putExtra("wantsCustomName", data.getBoolean("wantsCustomName"));
-                        if(data.getBoolean("wantsCustomColor")){
-                            color = data.getString("CustomColor");
-                            appIntent.putExtra("CustomColor", color);
+                        state.setGlobalCustomName(data.getString("customName"));
+                        state.setGlobalWantsCustomName(data.getBoolean("wantsCustomName"));
+                        state.setGlobalWantsCustomColor(data.getBoolean("wantsCustomColor"));
+                        state.setGlobalCustomColor(data.getString("customColor"));
 
-                        }
-                        if(data.getBoolean("wantsCustomName")){
-                            username = data.getString("CustomName");
-                            appIntent.putExtra("CustomName", username);
-
-                        }
-                        startActivity(appIntent);
                     } catch (JSONException e) {
+                        Log.i("CHANGE ERROR", e + "");
                         return;
                     }
 
@@ -182,41 +232,28 @@ public class AboutActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    String username;
-                    String color;
-                    Log.i("LOGINACTIVITY", "LOGIN SUCCESSFUL");
                     JSONObject data = (JSONObject) args[0];
-                    String text = "Login Successful";
+                    try {
+                        Log.i("CHANGE ERROR", data.getString("message") + "");
+                    }catch (JSONException e){
+                        Log.i("CHANGE ERROR", "A Problem");
+
+                    }
                     Context context = getApplicationContext();
                     int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, text, duration);
+                    Toast toast = Toast.makeText(context, "An Error Occured.", duration);
                     toast.show();
-
-                    Intent appIntent = new Intent(getApplicationContext(), ChatActivity.class);
-                    Bundle b = new Bundle();
-                    try {
-                        appIntent.putExtra("wantsCustomColor", data.getBoolean("wantsCustomColor"));
-                        appIntent.putExtra("wantsCustomName", data.getBoolean("wantsCustomName"));
-                        if(data.getBoolean("wantsCustomColor")){
-                            color = data.getString("CustomColor");
-                            appIntent.putExtra("CustomColor", color);
-
-                        }
-                        if(data.getBoolean("wantsCustomName")){
-                            username = data.getString("CustomName");
-                            appIntent.putExtra("CustomName", username);
-
-                        }
-                        startActivity(appIntent);
-                    } catch (JSONException e) {
-                        return;
-                    }
 
 
                 }
             });
         }
     };
+
+    private boolean validateHexCode(final String hexColorCode){
+        matcher = pattern.matcher(hexColorCode);
+        return matcher.matches();
+    }
 
 
 }

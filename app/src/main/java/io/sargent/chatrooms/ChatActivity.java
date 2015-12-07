@@ -10,7 +10,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.internal.view.menu.ActionMenuItem;
-import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -28,14 +27,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -77,9 +74,9 @@ public class ChatActivity extends AppCompatActivity {
     private Calendar calendar;
 
     private String mCurrentRoom;
-    private boolean wantsCustomName;
-    private boolean wantsCustomColor;
     private int mCurrentRoomIndex;
+
+    private GlobalState state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,22 +84,12 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-
         mDataStore = DataStore.get(this);
-        GlobalState state = (GlobalState)getApplicationContext();
+        state = (GlobalState)getApplicationContext();
         mSocket = state.getSocket();
 
-        Bundle extras = getIntent().getExtras();
-        wantsCustomName = extras.getBoolean("wantsCustomName");
-        wantsCustomColor = extras.getBoolean("wantsCustomColor");
+        Log.i("CUSTOM NAME", state.getGlobalCustomName());
 
-
-        if(extras.getBoolean("wantsCustomName")==true){
-            userName = extras.getString("CustomName");
-        }
-        if(extras.getBoolean("wantsCustomColor")==true){
-            userColour = extras.getString("CustomColor");
-        }
 
         // Server socket
         mSocket.on(Socket.EVENT_ERROR, onError);
@@ -112,6 +99,8 @@ public class ChatActivity extends AppCompatActivity {
         mSocket.on(Socket.EVENT_RECONNECT_ATTEMPT, onReconnectAttempt);
         mSocket.on("receiveUserMetadata", onConnectMetadata);
         mSocket.on("message", onMessageRecieved);
+        mSocket.on("onInvite", onInvitedToRoom);
+        mSocket.emit("requestUserMetaData");
 
         mActionbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(mActionbar);
@@ -212,7 +201,7 @@ public class ChatActivity extends AppCompatActivity {
         if(requestCode == ADD_ROOM_REQUEST_CODE){
             switch(resultCode){
                 case RESULT_OK:
-                    RoomInfo r = new RoomInfo(data.getStringExtra("room_name"), data.getStringExtra("password"));
+                    RoomInfo r = new RoomInfo(data.getStringExtra("room_name"));
                     mRoomData.add(r);
                     mRoomAdapter.notifyDataSetChanged();
                     break;
@@ -247,13 +236,34 @@ public class ChatActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             //create intent out of the AboutActivity
             Intent i = new Intent(mCtx, AboutActivity.class);
-            i.putExtra("userName", userName);
-            i.putExtra("userColor", userColour);
-            i.putExtra("wantsCustomName", wantsCustomName);
-            i.putExtra("wantsCustomColor", wantsCustomColor);
             //start the new activity
             startActivity(i);
             //Log.d(TAG,"Clicked");
+            return true;
+        }
+        if (id == R.id.add_users) {
+            //create a dropdown list of all the users currently in the room
+            JSONObject jsonObj = new JSONObject();
+            try {
+                jsonObj.put("roomname", mCurrentRoom);
+            }catch (Exception e){
+                Log.i("CHAT ACTIVITY", e.toString());
+            }
+           // mSocket.emit("requestInviteOthers", jsonObj);
+
+
+
+            return true;
+        }
+        if (id == R.id.action_users) {
+            //create a dropdown list of all the users currently in the room
+            JSONObject jsonObj = new JSONObject();
+            try {
+                jsonObj.put("roomname", mCurrentRoom);
+            }catch (Exception e){
+                Log.i("CHAT ACTIVITY", e.toString());
+            }
+            //mSocket.emit("requestClientsInRoom", jsonObj);
             return true;
         }
 
@@ -301,6 +311,7 @@ public class ChatActivity extends AppCompatActivity {
         SimpleDateFormat date = new SimpleDateFormat("dd-MMM-yyyy | hh:mm a");
         String formatted = date.format(calendar.getTime());
 
+
         m.user += " | " + formatted;
 
         mTextAdapter.addMessage(m);
@@ -319,8 +330,11 @@ public class ChatActivity extends AppCompatActivity {
         for(int i = 0; i < json.length(); i ++){
             String userName = "Default String";
             String message = "Default String";
+            String userColor = "";
             Boolean isSender = false;
+
             try {
+                userColor = json.getJSONObject(i).getString("usercolor");
                 userName = json.getJSONObject(i).getString("username");
                 message = json.getJSONObject(i).getString("message");
                 isSender = json.getJSONObject(i).getBoolean("isSender");
@@ -328,7 +342,7 @@ public class ChatActivity extends AppCompatActivity {
                 Log.d("ChatActivity", e.getMessage());
             }
 
-            TextMessageInfo m = new TextMessageInfo(userName, message, isSender);
+            TextMessageInfo m = new TextMessageInfo(userName, message, userColor, isSender);
             addMessageToViewNoTimestamp(m);
         }
     }
@@ -339,6 +353,7 @@ public class ChatActivity extends AppCompatActivity {
             for(int i = 0; i < mTextAdapter.getItemCount(); i++){
                 JSONObject json = new JSONObject();
                 try {
+                    json.put("usercolor", mTextAdapter.getMessageAt(i).getColor());
                     json.put("username", mTextAdapter.getMessageAt(i).getUser());
                     json.put("message", mTextAdapter.getMessageAt(i).getMessage());
                     json.put("isSender", mTextAdapter.getMessageAt(i).isSender());
@@ -360,7 +375,7 @@ public class ChatActivity extends AppCompatActivity {
             try{
                 for(int i = 0; i < json.length(); i++){
                     JSONObject jsonObj = json.getJSONObject(i);
-                    RoomInfo r = new RoomInfo(jsonObj.getString("roomName"), "Default String"/*jsonObj.getString("password")*/);
+                    RoomInfo r = new RoomInfo(jsonObj.getString("roomName"));//jsonObj.getString("password"));
                     mRoomData.add(r);
                     mRoomAdapter.notifyDataSetChanged();
                 }
@@ -394,11 +409,13 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+
     private void attemptJoinRoom(String roomName){
 
         JSONObject jsonObj = new JSONObject();
         try{
             jsonObj.put("username", userName);
+            jsonObj.put("usercolor", userColour);
             jsonObj.put("roomName", roomName);
         } catch(JSONException e){
             Log.d(TAG, e.getMessage());
@@ -427,6 +444,8 @@ public class ChatActivity extends AppCompatActivity {
         try{
             jsonObj.put("roomName", mCurrentRoom);
             jsonObj.put("message", msg);
+            jsonObj.put("username", userName);
+            jsonObj.put("usercolor", userColour);
         } catch(JSONException e){
             Log.d(TAG, e.getMessage());
         }
@@ -438,7 +457,7 @@ public class ChatActivity extends AppCompatActivity {
             return;
         }
 
-        TextMessageInfo m = new TextMessageInfo(userName, msg, true);
+        TextMessageInfo m = new TextMessageInfo(userName, msg, userColour, true);
         addMessageToView(m);
 
         hide_keyboard(this);
@@ -452,10 +471,22 @@ public class ChatActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
+                    Log.i("ONCONNECTMETA", "CALLED");
 
                     try {
-                        userName = data.getString("username");
-                        userColour = data.getString("usercolor");
+                        if(state.getGlobalWantsCustomName()){
+                            userName = state.getGlobalCustomName();
+                        }else{
+                            userName = data.getString("username");
+                        }
+
+                        if(state.getGlobalWantsGlobalCustomColor()){
+                            userColour = state.getGlobalCustomColor();
+                        }else{
+                            userColour = data.getString("usercolor");
+                        }
+                        Log.i("ONCONNECTMETA", "COLOR: " + userColour);
+
                     } catch (JSONException e) {
                         return;
                     }
@@ -474,10 +505,12 @@ public class ChatActivity extends AppCompatActivity {
                     String username;
                     String message;
                     String room;
+                    String color;
                     try {
                         username = data.getString("username");
                         message = data.getString("message");
                         room = data.getString("roomName");
+                        color = data.getString("color");
                     } catch (JSONException e) {
                         Log.d(TAG, e.getMessage());
                         return;
@@ -485,7 +518,7 @@ public class ChatActivity extends AppCompatActivity {
 
                     // add the message to view
                     if (room.equals(mCurrentRoom) || room.equals("SERVER")) {
-                        TextMessageInfo m = new TextMessageInfo(username, message, false);
+                        TextMessageInfo m = new TextMessageInfo(username, message, color, false);
                         addMessageToView(m);
                     } else {
                         JSONObject obj = new JSONObject();
@@ -499,6 +532,30 @@ public class ChatActivity extends AppCompatActivity {
 
                         mDataStore.appendJSONObjectInStorage(room, obj, true);
                     }
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onInvitedToRoom = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String RoomName = "s";
+                    try {
+                        RoomName = data.getString("roomname");
+                        RoomInfo r = new RoomInfo(RoomName);
+                        mRoomData.add(r);
+                    } catch (Exception e) {
+                        Log.i(TAG, e.toString());
+                    }
+
+                    Toast.makeText(getApplicationContext(),
+                            "Invited to Room: " + RoomName,
+                            Toast.LENGTH_SHORT).show();
                 }
             });
         }

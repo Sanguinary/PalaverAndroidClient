@@ -3,15 +3,13 @@ package io.sargent.chatrooms;
 
 public class RoomInfo {
     public String roomName;
-    public String password;
 
-    public RoomInfo(String nRoom, String nPassword){
+    public RoomInfo(String nRoom){
         roomName = nRoom;
-        password = nPassword;
     }
 
     @Override
     public String toString(){
-        return "RoomInfo: roomName=" + roomName + ", password=" + password;
+        return "RoomInfo: roomName=" + roomName;
     }
 }

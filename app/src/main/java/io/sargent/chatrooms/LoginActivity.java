@@ -35,11 +35,14 @@ public class LoginActivity extends AppCompatActivity {
 
     private Socket mSocket;
 
+    GlobalState state;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
-        GlobalState state = (GlobalState)getApplicationContext();
+        state = (GlobalState)getApplicationContext();
+        state.start();
         mSocket = state.getSocket();
         mSocket.on("LoginSuccessful", LoginSuccessful);
         mSocket.on("LoginError", LoginFailed);
@@ -81,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
 
                    mSocket.emit("login", jsonObj);
 
-                    mPasswordInput.setText("");
+                   mPasswordInput.setText("");
 
 
                }
@@ -97,10 +100,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
-
     }
-
 
     @Override
     protected void onResume() {
@@ -127,21 +127,16 @@ public class LoginActivity extends AppCompatActivity {
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
 
+
                     Intent appIntent = new Intent(getApplicationContext(), ChatActivity.class);
                     Bundle b = new Bundle();
                     try {
-                        appIntent.putExtra("wantsCustomColor", data.getBoolean("wantsCustomColor"));
-                        appIntent.putExtra("wantsCustomName", data.getBoolean("wantsCustomName"));
-                        if(data.getBoolean("wantsCustomColor")){
-                            color = data.getString("CustomColor");
-                            appIntent.putExtra("CustomColor", color);
+                        state.setGlobalCustomName(data.getString("CustomName"));
+                        state.setGlobalWantsCustomName(data.getBoolean("wantsCustomName"));
+                        state.setGlobalWantsCustomColor(data.getBoolean("wantsCustomColor"));
+                        state.setGlobalCustomColor(data.getString("CustomColor"));
 
-                        }
-                        if(data.getBoolean("wantsCustomName")){
-                            username = data.getString("CustomName");
-                            appIntent.putExtra("CustomName", username);
 
-                        }
                         startActivity(appIntent);
                     } catch (JSONException e) {
                         return;

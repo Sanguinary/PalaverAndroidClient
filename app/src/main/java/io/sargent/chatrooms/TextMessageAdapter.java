@@ -8,6 +8,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,8 +58,11 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
         if(t.isSender()){
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
             params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
+            Log.i("MESSAGE ADAPTER", "COLOR: " + t.getColor());
+            int userColor = Color.parseColor("#" + t.getColor());
 
-            GradientDrawable shape = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[] {0xFFEEEEEE, 0xFFEEEEEE});
+            //GradientDrawable shape = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[] {0xFFEEEEEE, 0xFFEEEEEE});
+            GradientDrawable shape = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[] {userColor, userColor});
             float den = context.getResources().getDisplayMetrics().density;
             shape.setCornerRadii(new float[] {
                     den * 8f, den * 8f, // top-left
@@ -77,10 +81,16 @@ public class TextMessageAdapter extends RecyclerView.Adapter<TextMessageAdapter.
         } else {
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
             params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+                int userColor;
+            try {
+                userColor = Color.parseColor("#" + t.getColor());
+            }catch (IllegalArgumentException ex){
+                userColor = Color.parseColor("#aabbcc");
+            }
 
             GradientDrawable shape = new GradientDrawable(
-                    GradientDrawable.Orientation.BOTTOM_TOP, new int[] {    context.getResources().getColor(R.color.ColorPrimaryLight),
-                                                                            context.getResources().getColor(R.color.ColorPrimaryLight)});
+                    GradientDrawable.Orientation.BOTTOM_TOP, new int[] {    userColor,
+                                                                            userColor});
             float den = context.getResources().getDisplayMetrics().density;
             shape.setCornerRadii(new float[]{
                     den * 0f, den * 0f, // top-left

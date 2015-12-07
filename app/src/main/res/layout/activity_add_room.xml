@@ -1,79 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:background="@color/ColorPrimaryLight"
     android:layout_height="match_parent">
+    <include
+        android:id="@+id/tool_bar"
+        layout="@layout/tool_bar"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_centerInParent="true"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingTop="24dp"
-        android:paddingBottom="24dp"
-        android:orientation="vertical">
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Room Name"
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="100dp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:textColor="@color/ColorPrimaryTextLight"
-            android:padding="10dp"
-            android:text="Enter a room name:"/>
+    <EditText
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/room_name_entry"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#000000" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="#FFFFFFFF"
-            android:elevation="6dp">
-
-            <EditText
-                android:id="@+id/room_name_entry"
-                android:imeOptions="actionDone"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="8"
-                android:textCursorDrawable="@null"
-                style="@style/EditTextAppTheme"/>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/password_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/ColorPrimaryTextLight"
-            android:gravity="center_horizontal"
-            android:padding="10dp"
-            android:text="Enter password:"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="#FFFFFFFF"
-            android:elevation="6dp">
-
-            <EditText
-                android:id="@+id/password_entry"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:imeOptions="actionDone"
-                android:layout_weight="7"
-                android:textCursorDrawable="@null"
-                style="@style/EditTextAppTheme"/>
-
-            <ImageButton
-                android:id="@+id/submit_new_room"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:layout_margin="4dp"
-                android:layout_gravity="center_vertical"
-                android:clickable="true"
-                android:background="@drawable/button_circle"
-                android:src="@drawable/ic_send_message"/>
-        </LinearLayout>
-    </LinearLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create"
+        android:id="@+id/submit_new_room"
+        android:layout_gravity="center_horizontal" />
 
 
-</RelativeLayout>
+</LinearLayout>

@@ -35,7 +35,9 @@
             android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:id="@+id/CustomNameEditText"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#000000" />
 
         <CheckBox
             android:layout_width="wrap_content"
@@ -48,13 +50,22 @@
             android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:id="@+id/CustomColorEditText"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#000000" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Change Settings"
             android:id="@+id/settingsButton"
+            android:layout_gravity="center_horizontal" />
+
+        <Button
+            android:layout_width="118dp"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:id="@+id/backButton"
             android:layout_gravity="center_horizontal" />
 
 

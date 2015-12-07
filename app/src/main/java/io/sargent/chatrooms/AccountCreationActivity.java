@@ -31,6 +31,7 @@ public class AccountCreationActivity extends AppCompatActivity {
     private Socket mSocket;
 
     private Button createButton;
+    private Button backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,16 +40,23 @@ public class AccountCreationActivity extends AppCompatActivity {
 
         GlobalState state = (GlobalState)getApplicationContext();
         mSocket = state.getSocket();
-        mSocket.on("AccountCreationSuccess", AccountCreationSuccess);
-        mSocket.on("AccountCreationError", AccountCreationError);
+        mSocket.on("accountCreationSuccess", AccountCreationSuccess);
+        mSocket.on("accountCreationError", AccountCreationError);
 
         createButton = (Button)findViewById(R.id.creationButton);
+        backButton = (Button)findViewById(R.id.creationBackButton);
 
         usernameEditText = (EditText)findViewById(R.id.usernameCreateTextEdit);
         pass1EditText = (EditText)findViewById(R.id.pass1CreateTextEdit);
         pass2EditText = (EditText)findViewById(R.id.pass2CreateTextEdit);
 
-
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent appIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(appIntent);
+            }
+        });
 
 
         createButton.setOnClickListener(new View.OnClickListener() {
@@ -61,18 +69,17 @@ public class AccountCreationActivity extends AppCompatActivity {
                 Log.d(TAG, pass1.length() + " " + pass2.length());
 
 
-                if(pass1.equals(pass2) == false){
+                if (pass1.equals(pass2) == false) {
                     Context context = getApplicationContext();
                     int duration = Toast.LENGTH_SHORT;
                     Toast toast = Toast.makeText(context, "Passwords do not match", duration);
                     toast.show();
-                }
-                else {
+                } else {
 
                     JSONObject jsonObj = new JSONObject();
                     try {
                         jsonObj.put("username", username);
-                        jsonObj.put("password", pass1);
+                        jsonObj.put("pass1", pass1);
 
                     } catch (JSONException e) {
                         Log.d(TAG, e.getMessage());
