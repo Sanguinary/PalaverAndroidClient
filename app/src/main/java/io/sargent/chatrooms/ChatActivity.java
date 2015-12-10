@@ -263,7 +263,7 @@ public class ChatActivity extends AppCompatActivity {
             }catch (Exception e){
                 Log.i("CHAT ACTIVITY", e.toString());
             }
-            //mSocket.emit("requestClientsInRoom", jsonObj);
+            mSocket.emit("requestClientsInRoom", jsonObj);
             return true;
         }
 
