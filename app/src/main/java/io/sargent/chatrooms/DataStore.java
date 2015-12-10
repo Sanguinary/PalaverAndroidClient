@@ -219,4 +219,18 @@ public class DataStore {
             }
         }
     }
+
+    public void deleteFileInStorage(String fileName, Boolean isMessages){
+        String filePath;
+
+        if(isMessages){
+            filePath = mCtx.getFilesDir() + File.separator + fileName + FILE_SUFFIX;
+        } else {
+            filePath = mCtx.getFilesDir() + File.separator + fileName;
+        }
+
+        File file = new File(filePath);
+
+        file.delete();
+    }
 }
