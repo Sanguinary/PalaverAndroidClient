@@ -100,6 +100,8 @@ public class ChatActivity extends AppCompatActivity {
         mSocket.on("receiveUserMetadata", onConnectMetadata);
         mSocket.on("message", onMessageRecieved);
         mSocket.on("onInvite", onInvitedToRoom);
+        mSocket.on("messageToast", onServerMessageToast);
+
         mSocket.emit("requestUserMetaData");
 
         mActionbar = (Toolbar) findViewById(R.id.tool_bar);
@@ -249,7 +251,7 @@ public class ChatActivity extends AppCompatActivity {
             }catch (Exception e){
                 Log.i("CHAT ACTIVITY", e.toString());
             }
-           // mSocket.emit("requestInviteOthers", jsonObj);
+           mSocket.emit("requestInviteOthers", jsonObj);
 
 
 
@@ -428,12 +430,13 @@ public class ChatActivity extends AppCompatActivity {
         JSONObject jsonObj = new JSONObject();
         try{
             jsonObj.put("roomName", roomName);
+            jsonObj.put("username", userName);
         } catch(JSONException e){
             Log.d(TAG, e.getMessage());
         }
 
         mSocket.emit("leaveRoom", jsonObj);
-
+        mDataStore.deleteFileInStorage(roomName, true);
         mRoomData.remove(pos);
         mRoomAdapter.notifyDataSetChanged();
     }
@@ -490,6 +493,29 @@ public class ChatActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         return;
                     }
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onServerMessageToast = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String message;
+                    try {
+                        message = data.getString("message");
+                        Toast.makeText( mCtx,
+                                message,
+                                Toast.LENGTH_SHORT).show();
+
+                    } catch (JSONException e) {
+                        return;
+                    }
+
                 }
             });
         }

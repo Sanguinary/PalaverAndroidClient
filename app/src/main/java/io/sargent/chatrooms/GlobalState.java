@@ -32,7 +32,7 @@ public class GlobalState extends Application {
         try{
 
             mSocket = IO.socket("https://palaver-server.herokuapp.com/");
-            //mSocket = IO.socket("http://129.21.114.153:3000/");
+            //mSocket = IO.socket("http://129.21.115.139:3000/");
             Log.d(TAG, "Connected");
         } catch (URISyntaxException e){
             Toast.makeText(this, R.string.connection_error, Toast.LENGTH_SHORT);
