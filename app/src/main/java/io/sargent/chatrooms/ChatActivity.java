@@ -168,20 +168,30 @@ public class ChatActivity extends AppCompatActivity {
 
                 // Connect to room
                 attemptJoinRoom(t.getText().toString());
-                loadMessages(mCurrentRoom);
+                //loadMessages(mCurrentRoom);
                 mActionbar.setTitle(mCurrentRoom);
 
                 mDrawer.closeDrawer(GravityCompat.START);
             }
         });
+        //handles the long press on the room adapter
         mRooms.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView t = (TextView) view.findViewById(R.id.rowText);
                 attemptLeaveRoom(t.getText().toString(), position);
+                if(mCurrentRoom == t.getText().toString()) {
+                    if (!mRoomData.isEmpty()) {
+                        attemptJoinRoom(mRoomData.get(0).roomName);
+                    }
+                }
+
+                mDataStore.deleteFileInStorage(t.getText().toString(), true);
+                mDataStore.deleteFileInStorage(t.getText().toString(), false);
                 return true;
             }
         });
+
         mRooms.setAdapter(mRoomAdapter);
 
         mAddRoom = (TextView)findViewById(R.id.add_room_button);
@@ -196,7 +206,6 @@ public class ChatActivity extends AppCompatActivity {
         // Load in data from previous sessions
         loadRooms();
     }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -211,7 +220,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         }
     }
-
+    //builds the actionbar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -226,7 +235,7 @@ public class ChatActivity extends AppCompatActivity {
 
         return true;
     }
-
+    //handles the presses to this activities actionbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -306,7 +315,7 @@ public class ChatActivity extends AppCompatActivity {
 
         super.onDestroy();
     }
-
+    //adds a message to the adapter
     private void addMessageToView(TextMessageInfo m){
         // Create timestamp
         calendar = Calendar.getInstance();
@@ -320,13 +329,13 @@ public class ChatActivity extends AppCompatActivity {
         mTextAdapter.notifyDataSetChanged();
         mMessageList.scrollToPosition(mTextAdapter.getItemCount() - 1);
     }
-
+    //adds a message without the timestamp
     private void addMessageToViewNoTimestamp(TextMessageInfo m){
         mTextAdapter.addMessage(m);
         mTextAdapter.notifyDataSetChanged();
         mMessageList.scrollToPosition(mTextAdapter.getItemCount() - 1);
     }
-
+    //loads old messages from storage
     private void loadMessages(String roomName){
         JSONArray json = mDataStore.getJSONArrayFromStorage(roomName, true);
         for(int i = 0; i < json.length(); i ++){
@@ -334,7 +343,7 @@ public class ChatActivity extends AppCompatActivity {
             String message = "Default String";
             String userColor = "";
             Boolean isSender = false;
-
+            //gets info from json objects
             try {
                 userColor = json.getJSONObject(i).getString("usercolor");
                 userName = json.getJSONObject(i).getString("username");
@@ -348,7 +357,7 @@ public class ChatActivity extends AppCompatActivity {
             addMessageToViewNoTimestamp(m);
         }
     }
-
+    //saves the messages in the current room
     private void saveMessages(){
         if(mCurrentRoom != null){
             JSONArray array = new JSONArray();
@@ -369,7 +378,7 @@ public class ChatActivity extends AppCompatActivity {
             mDataStore.setJSONArrayInStorage(mCurrentRoom, array, true);
         }
     }
-
+    //load rooms that you were in from the alst time you closed the app
     private void loadRooms(){
         JSONArray json = mDataStore.getJSONArrayFromStorage("room_list", false);
 
@@ -390,7 +399,7 @@ public class ChatActivity extends AppCompatActivity {
             loadMessages(mCurrentRoom);
         }
     }
-
+    //saves the rooms when you cloase the app
     private void saveRooms(){
         if(mCurrentRoom != null){
             JSONObject room = new JSONObject();
@@ -411,7 +420,7 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-
+    //attmept to join a room, if room does not exist, creates the room.
     private void attemptJoinRoom(String roomName){
 
         JSONObject jsonObj = new JSONObject();
@@ -425,7 +434,8 @@ public class ChatActivity extends AppCompatActivity {
 
         mSocket.emit("roomTryJoinCreate", jsonObj);
     }
-
+    //attempts to leave the room that you are currently connected to.
+    //called when long press is done on a room in the room list
     private void attemptLeaveRoom(String roomName, int pos){
         JSONObject jsonObj = new JSONObject();
         try{
@@ -440,7 +450,7 @@ public class ChatActivity extends AppCompatActivity {
         mRoomData.remove(pos);
         mRoomAdapter.notifyDataSetChanged();
     }
-
+    //loads json and attempts to send a message to the Server
     private void attemptSendMessage(String msg){
 
         JSONObject jsonObj = new JSONObject();
@@ -466,7 +476,7 @@ public class ChatActivity extends AppCompatActivity {
         hide_keyboard(this);
         mSocket.emit("messageRoom", jsonObj);
     }
-
+    //recieves metadat from server when connection occurs
     private Emitter.Listener onConnectMetadata = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -497,7 +507,7 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
     };
-
+    //special way to recieve a certain message and diplay it as a toast
     private Emitter.Listener onServerMessageToast = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -520,7 +530,7 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
     };
-
+    //when a message is recieved, how to add it to the current room.
     private Emitter.Listener onMessageRecieved = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -562,13 +572,14 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
     };
-
+    //when the user is invited to a new room,
     private Emitter.Listener onInvitedToRoom = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    //makes the name of the room appear
                     JSONObject data = (JSONObject) args[0];
                     String RoomName = "s";
                     try {
@@ -586,7 +597,7 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
     };
-
+    //on disconnect
     private Emitter.Listener onDisconnect = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -600,7 +611,7 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
     };
-
+    //
     private Emitter.Listener onError = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -612,7 +623,7 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
     };
-
+    //on connectError, do nothing
     private Emitter.Listener onConnectError = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -624,7 +635,7 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
     };
-
+    //attempt to reconnect on disconnect
     private Emitter.Listener onReconnectAttempt = new Emitter.Listener() {
         @Override
         public void call(Object... args) {

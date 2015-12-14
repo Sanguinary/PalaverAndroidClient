@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class DataStore {
-
+    //used to store and load json objects from storage
     //-----Static attributes-----
     private static final String FILE_SUFFIX = "_Message_Store";
     private static final String PREFS_NAME = "9mB26hf_DATA_STORE_PREFERENCES";
